@@ -290,7 +290,11 @@ class BaseWebpackConfig {
         );
     }
 
-    const includes = getSourceIncludes(this.appDirectory, this.options);
+    const includes = getSourceIncludes(
+      this.appDirectory,
+      this.options,
+      this.metaName,
+    );
 
     if (includes.length > 0) {
       const includeRegex = mergeRegex(...includes);

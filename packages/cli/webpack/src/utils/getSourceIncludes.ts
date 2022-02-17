@@ -16,7 +16,7 @@ const shouldIncludePackage = (
 ) => include.some(i => (i instanceof RegExp ? i.test(p.name) : p.name === i));
 
 export const getSourceIncludes = memoize<(string | RegExp)[]>(
-  (appDirectory: string, config: NormalizedConfig) => {
+  (appDirectory: string, config: NormalizedConfig, metaName: string) => {
     const { source } = config;
 
     const include = (source as any)?.include || [];
@@ -29,7 +29,7 @@ export const getSourceIncludes = memoize<(string | RegExp)[]>(
 
     const packages = getMonorepoPackages(root);
 
-    const modernjsMonorepo = isModernjsMonorepo(root);
+    const modernjsMonorepo = isModernjsMonorepo(root, metaName);
 
     const paths = packages
       .filter(

@@ -32,7 +32,7 @@ export const isPnpmWorkspaces = (root: string) =>
 export const isMonorepo = (root: string) =>
   isLerna(root) || isYarnWorkspaces(root) || isPnpmWorkspaces(root);
 
-export const isModernjsMonorepo = (root: string) => {
+export const isModernjsMonorepo = (root: string, metaName: string) => {
   const json = JSON.parse(
     fs.readFileSync(path.join(root, 'package.json'), 'utf8'),
   );
@@ -42,7 +42,7 @@ export const isModernjsMonorepo = (root: string) => {
     ...(json.devDependencies || {}),
   };
 
-  return Boolean(deps['@modern-js/monorepo-tools']);
+  return Boolean(deps[`@${metaName}/monorepo-tools`]);
 };
 
 export const findMonorepoRoot = (
