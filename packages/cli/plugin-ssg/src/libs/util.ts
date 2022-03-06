@@ -2,11 +2,17 @@ import path from 'path';
 import {
   ROUTE_SPEC_FILE,
   fs,
-  isSingleEntry,
   SERVER_BUNDLE_DIRECTORY,
+  isSingleEntry,
 } from '@modern-js/utils';
 import { ServerRoute as ModernRoute } from '@modern-js/types';
-import { EntryPoint, MultiEntryOptions, SSG, SsgRoute } from '../types';
+import {
+  EntryPoint,
+  MultiEntryOptions,
+  SingleEntryOptions,
+  SSG,
+  SsgRoute,
+} from '../types';
 
 export function formatOutput(filename: string) {
   const outputPath = path.extname(filename)
@@ -94,6 +100,13 @@ export const writeJSONSpec = (dir: string, routes: ModernRoute[]) => {
   fs.writeJSONSync(routeJSONPath, { routes }, { spaces: 2 });
 };
 
+export const isSingleEntryOption = (
+  ssgOptions: Extract<SingleEntryOptions, object> | MultiEntryOptions,
+  entrypoints: EntryPoint[],
+): ssgOptions is Extract<SingleEntryOptions, object> => {
+  return isSingleEntry(entrypoints) && 'routes' in ssgOptions;
+};
+
 export const replaceWithAlias = (
   base: string,
   filePath: string,
@@ -111,13 +124,10 @@ export const standardOptions = (ssgOptions: SSG, entrypoints: EntryPoint[]) => {
       return opt;
     }, {} as MultiEntryOptions);
   } else if (typeof ssgOptions === 'object') {
-    const isSingle = isSingleEntry(entrypoints);
-
-    if (isSingle && typeof (ssgOptions as any).main === 'undefined') {
-      return { main: ssgOptions } as MultiEntryOptions;
-    } else {
-      return ssgOptions as MultiEntryOptions;
+    if (isSingleEntryOption(ssgOptions, entrypoints)) {
+      return { main: ssgOptions };
     }
+    return ssgOptions;
   } else if (typeof ssgOptions === 'function') {
     const intermediateOptions: MultiEntryOptions = {};
     for (const entrypoint of entrypoints) {
